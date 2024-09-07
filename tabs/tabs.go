@@ -206,9 +206,9 @@ func (m Model) ViewTabs() string {
 		if isActive := (i == m.activeTab); isActive {
 			style = m.styles.ActiveTab
 			row = fmt.Sprintf("%s %s %s",
-				m.styles.TabIndicator.Render("╾"),
+				m.styles.TabIndicator.Render(m.styles.TabIndicatorLeft),
 				row,
-				m.styles.TabIndicator.Render("╼"),
+				m.styles.TabIndicator.Render(m.styles.TabIndicatorRight),
 			)
 			if isFirst := (i == 0); isFirst {
 				border, tb, rb, bb, lb := style.GetBorder()
@@ -217,7 +217,11 @@ func (m Model) ViewTabs() string {
 			}
 			row = style.Render(row)
 		} else {
-			row = fmt.Sprintf("  %s  ", row)
+			row = fmt.Sprintf("%s %s %s",
+				strings.Repeat(" ", width(m.styles.TabIndicatorLeft)),
+				row,
+				strings.Repeat(" ", width(m.styles.TabIndicatorRight)),
+			)
 			if isFirst := (i == 0); isFirst {
 				border, tb, rb, bb, lb := style.GetBorder()
 				border.BottomLeft = "├"

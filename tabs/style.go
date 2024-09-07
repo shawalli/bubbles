@@ -3,10 +3,12 @@ package tabs
 import gloss "github.com/charmbracelet/lipgloss"
 
 type Styles struct {
-	Tab          gloss.Style
-	ActiveTab    gloss.Style
-	TabSpacer    gloss.Style
-	TabIndicator gloss.Style
+	Tab               gloss.Style
+	ActiveTab         gloss.Style
+	TabSpacer         gloss.Style
+	TabIndicator      gloss.Style
+	TabIndicatorLeft  string
+	TabIndicatorRight string
 
 	TabWindow gloss.Style
 }
@@ -31,6 +33,8 @@ func DefaultStyles() Styles {
 		TabIndicator: gloss.NewStyle().
 			Foreground(DefaultActiveTabIndicatorColor).
 			Bold(true),
+		TabIndicatorLeft:  "=",
+		TabIndicatorRight: "=",
 		TabWindow: gloss.NewStyle().
 			Border(DefaultWindowBorder, true).
 			BorderForeground(DefaultForegroundColor).
