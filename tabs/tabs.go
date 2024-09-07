@@ -11,6 +11,11 @@ import (
 	"github.com/charmbracelet/x/term"
 )
 
+type TabSizeMsg struct {
+	Width  int
+	Height int
+}
+
 type Model struct {
 	keyMap KeyMap
 
@@ -147,13 +152,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 		msg.Width = m.width
 		cmds = append(cmds, tea.ClearScreen)
+	case TabSizeMsg:
+		m.width = msg.Width - 2
+		m.height = msg.Height
+		cmds = append(cmds, tea.ClearScreen)
 	}
 
-	// Update children
-	child, cmd := m.tabs[m.activeTab].child.Update(msg)
-	m.tabs[m.activeTab].child = child
-
-	cmds = append(cmds, cmd)
+	// Update and pass messages to all children
+	for i := range m.tabs {
+		child, cmd := m.tabs[i].child.Update(msg)
+		m.tabs[i].child = child
+		cmds = append(cmds, cmd)
+	}
 
 	return m, tea.Sequence(cmds...)
 }
