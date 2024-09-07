@@ -161,11 +161,40 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	doc := strings.Builder{}
 
+	// Tabs
 	tabs := m.ViewTabs()
+	doc.WriteString(tabs + "\n")
 
-	doc.WriteString(tabs)
+	// Window
+	w := width(tabs) - (m.styles.TabSpacer.GetPaddingLeft() +
+		m.styles.TabSpacer.GetPaddingRight() +
+		m.styles.TabWindow.GetPaddingLeft() +
+		m.styles.TabWindow.GetPaddingRight())
+	window := m.ViewWindow(w)
+	doc.WriteString(window + "\n")
 
 	return doc.String()
+}
+
+func (m Model) ViewWindow(w int) string {
+	content := m.tabs[m.activeTab].child.View()
+
+	var padded []string
+	for _, l := range strings.Split(content, "\n") {
+		lenL := width(l)
+		if lenL > w {
+			l1 := l[:w-1] + "\r"
+			l2 := l[w:lenL]
+			l2 = l2 + strings.Repeat(" ", w-width(l2)) + "\r"
+			padded = append(padded, l1, l2)
+		} else {
+			p := l + strings.Repeat(" ", w-lenL)
+			padded = append(padded, p)
+		}
+	}
+	content = strings.Join(padded, "\n")
+
+	return m.styles.TabWindow.Render(content)
 }
 
 func (m Model) ViewTabs() string {
