@@ -107,12 +107,6 @@ func width(s string) int {
 	return w
 }
 
-// height is a convenience function to calculate the height all lines.
-func height(s string) int {
-	s = strings.ReplaceAll(s, "\r\n", "\n")
-	return gloss.Height(s)
-}
-
 // SetTab sets the active tab.
 func (m Model) SetTab(i int) Model {
 	if i < 0 {

@@ -10,9 +10,6 @@ import (
 
 type PageModel struct {
 	content string
-
-	width  int
-	height int
 }
 
 func (pm PageModel) Init() tea.Cmd { return nil }
