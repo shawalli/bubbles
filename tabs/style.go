@@ -2,7 +2,7 @@ package tabs
 
 import gloss "github.com/charmbracelet/lipgloss"
 
-// Styles for tab rendering
+// Styles for tab rendering.
 type Styles struct {
 	// Inactive tab header
 	Tab gloss.Style
@@ -26,7 +26,7 @@ type Styles struct {
 	TabWindow gloss.Style
 }
 
-// DefaultStyles provides default tab styles
+// DefaultStyles provides default tab styles.
 func DefaultStyles() Styles {
 	return Styles{
 		Tab: gloss.NewStyle().
