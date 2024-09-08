@@ -1,6 +1,6 @@
 module github.com/shawalli/bubbles
 
-go 1.23rc1
+go 1.23.1
 
 require (
 	github.com/charmbracelet/bubbles v0.20.0
