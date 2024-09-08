@@ -58,10 +58,10 @@ func New(tabs ...Tab) Model {
 	return m
 }
 
-// Wraparound enables wraparound navigation from the last tab to the first tab and from the
-// first tab back to the last tab.
-func (m Model) Wraparound() Model {
-	m.wraparound = true
+// Wraparound enables or disables wraparound navigation from the last tab to the first tab and
+// from the first tab back to the last tab.
+func (m Model) Wraparound(w bool) Model {
+	m.wraparound = w
 	return m
 }
 
