@@ -11,31 +11,46 @@ import (
 	"github.com/charmbracelet/x/term"
 )
 
+// TabSizeMsg is a message about the dimensions of the tabs.Model.
+// It is used by a [Tab] to request a resizing of [Model] and all other [Tab] windows.
 type TabSizeMsg struct {
-	Width  int
+	// Width is the tab's total width.
+	Width int
+
+	// Height is the tab's total height.
 	Height int
 }
 
+// Model represents a group of tab headers and their content.
 type Model struct {
+	// keyMap is key bindings for tab navigation
 	keyMap KeyMap
 
-	tabs      []Tab
+	// tabs to render
+	tabs []Tab
+
+	// activeTab is the index of the tab currently being presented
 	activeTab int
 
-	width  int
+	// width of all tabs in the tab group
+	width int
+
+	// height of all tabs in the tab group
 	height int
 
+	// wraparound enables wrapping around from the last tab to the first tab or from the first tab
+	// back to the last tab
 	wraparound bool
 
+	// styles for the tab headers and bodies
 	styles Styles
 }
 
+// New creates a new Model.
 func New(tabs ...Tab) Model {
 	m := Model{
 		keyMap: DefaultKeyMap(len(tabs)),
-
-		tabs: tabs,
-
+		tabs:   tabs,
 		styles: DefaultStyles(),
 	}
 	m = m.DefaultDimensions()
@@ -43,35 +58,43 @@ func New(tabs ...Tab) Model {
 	return m
 }
 
+// Wraparound enables wraparound navigation from the last tab to the first tab and from the
+// first tab back to the last tab.
 func (m Model) Wraparound() Model {
 	m.wraparound = true
 	return m
 }
 
+// Styles enables custom styling.
 func (m Model) Styles(styles Styles) Model {
 	m.styles = styles
 	return m
 }
 
+// DefaultDimensions applies the current terminal's dimensions to the tab group.
 func (m Model) DefaultDimensions() Model {
 	termWidth, termHieght, _ := term.GetSize(os.Stdout.Fd())
 
+	// Pad from the right edge of the screen
 	m.width = termWidth - 2
 	m.height = termHieght
 
 	return m
 }
 
+// Width sets the Model width.
 func (m Model) Width(w int) Model {
 	m.width = w
 	return m
 }
 
+// Height sets the Model height.
 func (m Model) Height(h int) Model {
 	m.height = h
 	return m
 }
 
+// width is a convenience function to calculate the width of the longest line.
 func width(s string) int {
 	s = strings.ReplaceAll(s, "\r\n", "\n")
 	lines := strings.Split(s, "\n")
@@ -84,11 +107,13 @@ func width(s string) int {
 	return w
 }
 
+// height is a convenience function to calculate the height all lines.
 func height(s string) int {
 	s = strings.ReplaceAll(s, "\r\n", "\n")
 	return gloss.Height(s)
 }
 
+// SetTab sets the active tab.
 func (m Model) SetTab(i int) Model {
 	if i < 0 {
 		i = 0
@@ -100,6 +125,7 @@ func (m Model) SetTab(i int) Model {
 	return m
 }
 
+// NextTab moves the active tab forward.
 func (m Model) NextTab() Model {
 	i := m.activeTab + 1
 
@@ -114,6 +140,7 @@ func (m Model) NextTab() Model {
 	return m.SetTab(i)
 }
 
+// PreviousTab moves the active tab backward.
 func (m Model) PreviousTab() Model {
 	i := m.activeTab - 1
 
@@ -128,8 +155,10 @@ func (m Model) PreviousTab() Model {
 	return m.SetTab(i)
 }
 
+// Init the Model.
 func (m Model) Init() tea.Cmd { return nil }
 
+// Update the Model.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
@@ -168,6 +197,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Sequence(cmds...)
 }
 
+// View renders the Model.
 func (m Model) View() string {
 	doc := strings.Builder{}
 
@@ -186,27 +216,7 @@ func (m Model) View() string {
 	return doc.String()
 }
 
-func (m Model) ViewWindow(w int) string {
-	content := m.tabs[m.activeTab].child.View()
-
-	var padded []string
-	for _, l := range strings.Split(content, "\n") {
-		lenL := width(l)
-		if lenL > w {
-			l1 := l[:w-1] + "\r"
-			l2 := l[w:lenL]
-			l2 = l2 + strings.Repeat(" ", w-width(l2)) + "\r"
-			padded = append(padded, l1, l2)
-		} else {
-			p := l + strings.Repeat(" ", w-lenL)
-			padded = append(padded, p)
-		}
-	}
-	content = strings.Join(padded, "\n")
-
-	return m.styles.TabWindow.Render(content)
-}
-
+// ViewTabs renders tab headers.
 func (m Model) ViewTabs() string {
 	// Render all tabs
 	var tabs []string
@@ -253,4 +263,26 @@ func (m Model) ViewTabs() string {
 	)
 
 	return row
+}
+
+// ViewWindow renders the tab window.
+func (m Model) ViewWindow(w int) string {
+	content := m.tabs[m.activeTab].child.View()
+
+	var padded []string
+	for _, l := range strings.Split(content, "\n") {
+		lenL := width(l)
+		if lenL > w {
+			l1 := l[:w-1] + "\r"
+			l2 := l[w:lenL]
+			l2 = l2 + strings.Repeat(" ", w-width(l2)) + "\r"
+			padded = append(padded, l1, l2)
+		} else {
+			p := l + strings.Repeat(" ", w-lenL)
+			padded = append(padded, p)
+		}
+	}
+	content = strings.Join(padded, "\n")
+
+	return m.styles.TabWindow.Render(content)
 }

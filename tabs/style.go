@@ -2,17 +2,31 @@ package tabs
 
 import gloss "github.com/charmbracelet/lipgloss"
 
+// Styles for tab rendering
 type Styles struct {
-	Tab               gloss.Style
-	ActiveTab         gloss.Style
-	TabSpacer         gloss.Style
-	TabIndicator      gloss.Style
-	TabIndicatorLeft  string
+	// Inactive tab header
+	Tab gloss.Style
+
+	// Active tab header
+	ActiveTab gloss.Style
+
+	// Gap between rightmost tab header and right side of screen
+	TabSpacer gloss.Style
+
+	// Area to left and right of active tab header title
+	TabIndicator gloss.Style
+
+	// Character(s) to left of active tab header title
+	TabIndicatorLeft string
+
+	// Character(s) to right of active tab header title
 	TabIndicatorRight string
 
+	// Tab content
 	TabWindow gloss.Style
 }
 
+// DefaultStyles provides default tab styles
 func DefaultStyles() Styles {
 	return Styles{
 		Tab: gloss.NewStyle().

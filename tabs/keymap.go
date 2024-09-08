@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 )
 
+// KeyMap contains relevant keys for tab navigation.
 type KeyMap struct {
 	TabLeft  key.Binding
 	TabRight key.Binding
@@ -13,23 +14,7 @@ type KeyMap struct {
 	TabNumbers []key.Binding
 }
 
-func (km KeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{km.TabLeft, km.TabRight}
-}
-
-func (km KeyMap) FullHelp() [][]key.Binding {
-	help := [][]key.Binding{km.ShortHelp()}
-
-	var tnHelp []key.Binding
-	for _, tn := range km.TabNumbers {
-		tnHelp = append(tnHelp, tn)
-	}
-	if len(tnHelp) > 0 {
-		help = append(help, tnHelp)
-	}
-	return help
-}
-
+// DefaultKeyMap contains default key mappings for tab navigation.
 func DefaultKeyMap(tabs int) KeyMap {
 	km := KeyMap{
 		TabLeft: key.NewBinding(
