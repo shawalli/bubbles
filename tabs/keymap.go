@@ -19,11 +19,11 @@ func DefaultKeyMap(tabs int) KeyMap {
 	km := KeyMap{
 		TabLeft: key.NewBinding(
 			key.WithKeys("shift+tab", "ctrl+left"),
-			key.WithHelp("shift+tab/ctrl+left", "<tab"),
+			key.WithHelp("shift+tab/ctrl+left", "←tab"),
 		),
 		TabRight: key.NewBinding(
 			key.WithKeys("tab", "ctrl+right"),
-			key.WithHelp("tab/ctrl+right", "tab>"),
+			key.WithHelp("tab/ctrl+right", "tab→"),
 		),
 	}
 

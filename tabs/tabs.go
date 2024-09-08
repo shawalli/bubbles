@@ -11,6 +11,8 @@ import (
 	"github.com/charmbracelet/x/term"
 )
 
+var getTermSize = term.GetSize
+
 // TabSizeMsg is a message about the dimensions of the tabs.Model.
 // It is used by a [Tab] to request a resizing of [Model] and all other [Tab] windows.
 type TabSizeMsg struct {
@@ -58,10 +60,10 @@ func New(tabs ...Tab) Model {
 	return m
 }
 
-// Wraparound enables wraparound navigation from the last tab to the first tab and from the
-// first tab back to the last tab.
-func (m Model) Wraparound() Model {
-	m.wraparound = true
+// Wraparound enables or disables wraparound navigation from the last tab to the first tab and
+// from the first tab back to the last tab.
+func (m Model) Wraparound(w bool) Model {
+	m.wraparound = w
 	return m
 }
 
@@ -73,10 +75,10 @@ func (m Model) Styles(styles Styles) Model {
 
 // DefaultDimensions applies the current terminal's dimensions to the tab group.
 func (m Model) DefaultDimensions() Model {
-	termWidth, termHieght, _ := term.GetSize(os.Stdout.Fd())
+	termWidth, termHieght, _ := getTermSize(os.Stdout.Fd())
 
 	// Pad from the right edge of the screen
-	m.width = termWidth - 2
+	m.width = max(0, termWidth-2)
 	m.height = termHieght
 
 	return m

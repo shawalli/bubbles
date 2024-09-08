@@ -63,7 +63,7 @@ func main() {
 		),
 	}
 
-	m := Model{tabs: tabs.New(t...).Wraparound()}
+	m := Model{tabs: tabs.New(t...).Wraparound(true)}
 
 	if _, err := tea.NewProgram(m).Run(); err != nil {
 		fmt.Printf("could not run program: %v", err)
