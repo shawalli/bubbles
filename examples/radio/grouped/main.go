@@ -44,19 +44,19 @@ func (m Model) View() string {
 
 func main() {
 	vButtons := []tea.Model{
-		radio.NewButton(" 10%"),
-		radio.NewButton(" 15%"),
-		radio.NewButton(" 20%"),
-		radio.NewButton(" 22%"),
-		radio.NewButton(" 25%"),
-		radio.NewButton("None"),
+		radio.NewButton(" 10% "),
+		radio.NewButton(" 15% "),
+		radio.NewButton(" 20% "),
+		radio.NewButton(" 22% "),
+		radio.NewButton(" 25% "),
+		radio.NewButton("None "),
 	}
 
 	hButtons := []tea.Model{
-		radio.NewButton(" Pay Cash "),
-		radio.NewButton("Pay Credit"),
-		radio.NewButton(" PayBuddy "),
-		radio.NewButton("   BNPL   "),
+		radio.NewButton(" Pay Cash  "),
+		radio.NewButton("Pay Credit "),
+		radio.NewButton(" PayBuddy  "),
+		radio.NewButton("   BNPL    "),
 	}
 
 	m := Model{
