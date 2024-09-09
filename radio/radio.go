@@ -228,8 +228,18 @@ func (m Model) View() string {
 	doc := strings.Builder{}
 
 	var buttons []string
-	for _, button := range m.buttons {
-		buttons = append(buttons, m.styles.Button.Render(button.View()))
+	for i, label := range m.buttons {
+		var buttonStyle gloss.Style
+		switch i {
+		case 0:
+			buttonStyle = m.styles.FirstButton
+		case len(m.buttons) - 1:
+			buttonStyle = m.styles.LastButton
+		default:
+			buttonStyle = m.styles.Button
+		}
+
+		buttons = append(buttons, buttonStyle.Render(label.View()))
 	}
 
 	var row string
