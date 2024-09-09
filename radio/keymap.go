@@ -4,7 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 )
 
-// KeyMap contains relevant keys for tab navigation.
+// KeyMap contains relevant keys for button navigation.
 type KeyMap struct {
 	Select key.Binding
 

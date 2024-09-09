@@ -2,13 +2,17 @@ package radio
 
 import gloss "github.com/charmbracelet/lipgloss"
 
-// Styles for tab rendering.
+// Styles for button rendering.
+//
+// [DefaultStyles] and [DefaultPillboxStyles] only really use Button. [DefaultGroupedStyles] uses all
+// three button styles for grouped rendering.
 type Styles struct {
 	FirstButton gloss.Style
 	Button      gloss.Style
 	LastButton  gloss.Style
 }
 
+// DefaultStyles provides default button styles.
 func DefaultStyles(vertical bool) Styles {
 	b := gloss.NewStyle().PaddingRight(2)
 	s := Styles{
@@ -29,6 +33,7 @@ func DefaultStyles(vertical bool) Styles {
 	return s
 }
 
+// DefaultPillboxStyles provides default button pillbox styles.
 func DefaultPillboxStyles(vertical bool) Styles {
 	b := gloss.NewStyle().
 		Border(DefaultPillboxBorder, true).
@@ -51,6 +56,7 @@ func DefaultPillboxStyles(vertical bool) Styles {
 	return s
 }
 
+// DefaultGroupedStyles provides default button grouped styles.
 func DefaultGroupedStyles(vertical bool) Styles {
 	s := Styles{
 		FirstButton: gloss.NewStyle().
@@ -75,9 +81,53 @@ func DefaultGroupedStyles(vertical bool) Styles {
 	return s
 }
 
+// Styles for rendering the interior of the button itself.
+type ButtonStyles struct {
+	// Character(s) to left of the button label/content
+	LeftIndicatorCharacter string
+
+	// Character(s) to left of the action button label/content
+	ActiveLeftIndicatorCharacter string
+
+	// Character(s) to right of the button label/content
+	RightIndicatorCharacter string
+
+	// Character(s) to right of the active button label/content
+	ActiveRightIndicatorCharacter string
+
+	// Area to the left of the button label/content
+	LeftIndicator gloss.Style
+
+	// Area to the left of the active button label/content
+	ActiveLeftIndicator gloss.Style
+
+	// Area to the right of the button label/content
+	RightIndicator gloss.Style
+
+	// Area to the right of the active button label/content
+	ActiveRightIndicator gloss.Style
+
+	// Label/content for the button
+	Label gloss.Style
+
+	// Label/content for the active button
+	ActiveLabel gloss.Style
+}
+
+// DefaultButtonStyles provides default styles for a button.
+func DefaultButtonStyles() ButtonStyles {
+	return ButtonStyles{
+		LeftIndicatorCharacter:       "○",
+		ActiveLeftIndicatorCharacter: "●",
+
+		LeftIndicator:       gloss.NewStyle().Foreground(DefaultUnfocusedColor),
+		ActiveLeftIndicator: gloss.NewStyle().Foreground(DefaultActiveButtonIndicatorColor),
+	}
+}
+
 var (
-	DefaultUnfocusedColor          = gloss.AdaptiveColor{Light: "#3a3a3a", Dark: "#b0b0b0"}
-	DefaultActiveTabIndicatorColor = gloss.AdaptiveColor{Light: "#bb99fe", Dark: "#997bf6"}
+	DefaultUnfocusedColor             = gloss.AdaptiveColor{Light: "#3a3a3a", Dark: "#b0b0b0"}
+	DefaultActiveButtonIndicatorColor = gloss.AdaptiveColor{Light: "#bb99fe", Dark: "#997bf6"}
 
 	// ╭───╮
 	// │foo│
