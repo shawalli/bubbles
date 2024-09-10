@@ -1,6 +1,6 @@
 Set Shell zsh
 Sleep 1s
-Type "./demo"
+Type "./tabs-wraparound"
 Enter
 Sleep 3s
 Left 1
