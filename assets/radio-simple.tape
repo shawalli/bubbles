@@ -1,7 +1,6 @@
 Set Shell zsh
-Set Height 650
 Sleep 1s
-Type "./radio-grouped"
+Type "./radio-simple"
 Enter
 Sleep 3s
 Right 1

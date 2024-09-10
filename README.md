@@ -6,13 +6,15 @@ bubbles is a collection of TUI elements for [Bubble Tea](https://github.com/char
 
 ## Radio
 
+![Simple radio button demo](assets/radio-simple.gif)
+
 ![Grouped radio button demo](assets/radio-grouped.gif)
 
 `radio` simplifies the management of radio buttons, which may be presented vertically or horizontally.
 
 * [Example code, basic radio buttons](examples/radio/simple/main.go)
-* [Example code, pillbox-style buttons](examples/tabs/pillbox/main.go)
-* [Example code, grouped buttons](examples/tabs/resizeable/main.go)
+* [Example code, pill-style buttons](examples/radio/pill/main.go)
+* [Example code, grouped buttons](examples/radio/resizeable/main.go)
 
 ## Tabs
 

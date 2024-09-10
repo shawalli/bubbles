@@ -1,7 +1,7 @@
 Set Shell zsh
-Set Height 650
+Set Height 750
 Sleep 1s
-Type "./radio-grouped"
+Type "./radio-pill"
 Enter
 Sleep 3s
 Right 1

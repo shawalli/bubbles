@@ -60,8 +60,8 @@ func main() {
 	}
 
 	m := Model{
-		vRadio: radio.New(true, vButtons...).Styles(radio.DefaultPillboxStyles(true)),
-		hRadio: radio.New(false, hButtons...).Styles(radio.DefaultPillboxStyles(false)),
+		vRadio: radio.New(true, vButtons...).Styles(radio.DefaultPillStyles(true)),
+		hRadio: radio.New(false, hButtons...).Styles(radio.DefaultPillStyles(false)),
 	}
 
 	if _, err := tea.NewProgram(m).Run(); err != nil {

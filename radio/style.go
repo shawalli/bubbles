@@ -4,7 +4,7 @@ import gloss "github.com/charmbracelet/lipgloss"
 
 // Styles for button rendering.
 //
-// [DefaultStyles] and [DefaultPillboxStyles] only really use Button. [DefaultGroupedStyles] uses all
+// [DefaultStyles] and [DefaultPillStyles] only really use Button. [DefaultGroupedStyles] uses all
 // three button styles for grouped rendering.
 type Styles struct {
 	FirstButton gloss.Style
@@ -33,10 +33,10 @@ func DefaultStyles(vertical bool) Styles {
 	return s
 }
 
-// DefaultPillboxStyles provides default button pillbox styles.
-func DefaultPillboxStyles(vertical bool) Styles {
+// DefaultPillStyles provides default button pill styles.
+func DefaultPillStyles(vertical bool) Styles {
 	b := gloss.NewStyle().
-		Border(DefaultPillboxBorder, true).
+		Border(DefaultPillBorder, true).
 		Padding(0, 2, 0, 2)
 	s := Styles{
 		FirstButton: b,
@@ -132,7 +132,7 @@ var (
 	// ╭───╮
 	// │foo│
 	// ╰───╯
-	DefaultPillboxBorder = gloss.Border{
+	DefaultPillBorder = gloss.Border{
 		Top:         "─",
 		Bottom:      "─",
 		Left:        "│",
