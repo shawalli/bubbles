@@ -11,6 +11,8 @@ import (
 )
 
 type Model struct {
+	activeMonth int
+
 	months []tea.Model
 }
 
@@ -22,23 +24,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "esc", "q", "ctrl+c":
 			return m, tea.Quit
+		case "tab":
+			m.activeMonth = (m.activeMonth + 1) % 2
 		}
 	}
 
-	var cmds []tea.Cmd
-	for i := range m.months {
-		n, cmd := m.months[i].Update(msg)
-		m.months[i] = n
-		cmds = append(cmds, cmd)
-	}
+	n, cmd := m.months[m.activeMonth].Update(msg)
+	m.months[m.activeMonth] = n
 
-	return m, tea.Batch(cmds...)
+	return m, cmd
 }
 
 func (m Model) View() string {
 	padding := gloss.NewStyle().Padding(2, 3)
 	var months []string
-	for _, n := range m.months {
+	for i, n := range m.months {
 		month := n.View()
 
 		block := gloss.JoinVertical(
@@ -52,7 +52,15 @@ func (m Model) View() string {
 			n.View(),
 		)
 
-		months = append(months, padding.Render(block))
+		border := gloss.HiddenBorder()
+		if i == m.activeMonth {
+			border = gloss.DoubleBorder()
+		}
+		block = gloss.NewStyle().Border(border, true).Render(
+			padding.Render(block),
+		)
+
+		months = append(months, block)
 	}
 
 	return gloss.JoinHorizontal(gloss.Top, months...)

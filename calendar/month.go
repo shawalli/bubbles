@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	gloss "github.com/charmbracelet/lipgloss"
 )
@@ -19,6 +20,9 @@ type DayContentMsg struct {
 
 // MonthModel represents a full calendar month.
 type MonthModel struct {
+	// keyMap is key bindings for calendar navigation
+	keyMap KeyMap
+
 	// year of the month represented
 	year int
 	// month to represent
@@ -30,6 +34,8 @@ type MonthModel struct {
 	// days contains user-provided information about each day
 	days map[int]tea.Model
 
+	activeDate int
+
 	// Styles
 	styles MonthStyles
 }
@@ -37,12 +43,15 @@ type MonthModel struct {
 // NewMonth creates a new MonthModel.
 func NewMonth(year int, month time.Month) MonthModel {
 	m := MonthModel{
+		keyMap: DefaultKeyMap(),
+
 		year:  year,
 		month: month,
 
 		startOfWeek: time.Sunday,
 
-		days: make(map[int]tea.Model),
+		days:       make(map[int]tea.Model),
+		activeDate: 0,
 
 		styles: DefaultMonthStyles(),
 	}
@@ -75,6 +84,40 @@ func (m MonthModel) Init() tea.Cmd { return nil }
 func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		daysInMonth := DaysInMonth(m.year, m.month)
+		switch {
+		case key.Matches(msg, m.keyMap.Left):
+			i := m.activeDate - 1
+			if i <= 0 {
+				i = daysInMonth
+			}
+			m.activeDate = i
+		case key.Matches(msg, m.keyMap.Right):
+			i := m.activeDate + 1
+			if i > daysInMonth {
+				i = 1
+			}
+			m.activeDate = i
+		case key.Matches(msg, m.keyMap.Up):
+			i := m.activeDate - 7
+			if i < 0 {
+				i = m.activeDate + 28
+				if i > daysInMonth {
+					i = i - 7
+				}
+			}
+			m.activeDate = i
+		case key.Matches(msg, m.keyMap.Down):
+			i := m.activeDate + 7
+			if i > daysInMonth {
+				i = m.activeDate - 28
+				if m.activeDate < 28 {
+					i = i + 7
+				}
+			}
+			m.activeDate = i
+		}
 	case DayContentMsg:
 		if msg.Date.Year() != m.year {
 			break
@@ -189,8 +232,13 @@ func (m MonthModel) ViewWeeks() string {
 func (m MonthModel) ViewDay(weekday time.Weekday, date int, body string, lastRow bool) string {
 	num := m.styles.DateStyles.NumberStyle.Render("")
 	if date > 0 {
-		num = m.styles.DateStyles.NumberStyle.Render(fmt.Sprintf("%d", date))
+		style := m.styles.DateStyles.NumberStyle
+		if date == m.activeDate {
+			style = m.styles.DateStyles.ActiveNumberStyle
+		}
+		num = style.Render(fmt.Sprintf("%d", date))
 	}
+
 	day := gloss.JoinVertical(
 		gloss.Top,
 		num,

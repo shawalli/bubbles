@@ -15,6 +15,8 @@ type DateStyles struct {
 	// Date number style
 	NumberStyle gloss.Style
 
+	ActiveNumberStyle gloss.Style
+
 	// Contents style
 	BodyStyle gloss.Style
 }
@@ -33,6 +35,11 @@ func DefaultDateStyles() DateStyles {
 		NumberStyle: gloss.NewStyle().
 			Width(defaultWidth).
 			Align(gloss.Left),
+		ActiveNumberStyle: gloss.NewStyle().
+			Width(defaultWidth).
+			Align(gloss.Left).
+			Bold(true).
+			Foreground(DefaultActiveColor),
 		BodyStyle: gloss.NewStyle().
 			Width(defaultWidth).
 			Height(defaultHeight - 1).
@@ -109,8 +116,7 @@ func DefaultDaysOfWeekShort() []string {
 }
 
 var (
-	DefaultUnfocusedColor             = gloss.AdaptiveColor{Light: "#3a3a3a", Dark: "#b0b0b0"}
-	DefaultActiveButtonIndicatorColor = gloss.AdaptiveColor{Light: "#bb99fe", Dark: "#997bf6"}
+	DefaultActiveColor = gloss.AdaptiveColor{Light: "#3E5AFA", Dark: "#7DD6FA"}
 
 	// ╭───┬
 	// │Sun│
@@ -140,7 +146,7 @@ var (
 	}
 	//  ┬───╮
 	//  │Sat│
-	//  ┼───┼
+	//  ┼───┤
 	DefaultWeekdayLastBorder = gloss.Border{
 		Top:         "─",
 		Bottom:      "─",
