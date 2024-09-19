@@ -18,6 +18,12 @@ type DayContentMsg struct {
 	Content tea.Model
 }
 
+// ActiveDateMsg notifies to other models which date is set as the active date.
+type ActiveDateMsg struct {
+	// The day to update
+	Date time.Time
+}
+
 // MonthModel represents a full calendar month.
 type MonthModel struct {
 	// keyMap is key bindings for calendar navigation
@@ -85,6 +91,7 @@ func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		oldActiveDate := m.activeDate
 		daysInMonth := DaysInMonth(m.year, m.month)
 		switch {
 		case key.Matches(msg, m.keyMap.Left):
@@ -117,6 +124,14 @@ func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 			m.activeDate = i
+		}
+
+		if oldActiveDate != m.activeDate {
+			cmds = append(cmds, func() tea.Msg {
+				return ActiveDateMsg{
+					Date: time.Date(m.year, m.month, m.activeDate, 0, 0, 0, 0, time.UTC),
+				}
+			})
 		}
 	case DayContentMsg:
 		if msg.Date.Year() != m.year {
