@@ -40,7 +40,7 @@ type MonthModel struct {
 	// days contains user-provided information about each day
 	days map[int]tea.Model
 
-	activeDate int
+	activeDay int
 
 	// Styles
 	styles MonthStyles
@@ -56,8 +56,8 @@ func NewMonth(year int, month time.Month) MonthModel {
 
 		startOfWeek: time.Sunday,
 
-		days:       make(map[int]tea.Model),
-		activeDate: 0,
+		days:      make(map[int]tea.Model),
+		activeDay: 0,
 
 		styles: DefaultMonthStyles(),
 	}
@@ -91,45 +91,45 @@ func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		oldActiveDate := m.activeDate
+		oldActiveDay := m.activeDay
 		daysInMonth := DaysInMonth(m.year, m.month)
 		switch {
 		case key.Matches(msg, m.keyMap.Left):
-			i := m.activeDate - 1
+			i := m.activeDay - 1
 			if i <= 0 {
 				i = daysInMonth
 			}
-			m.activeDate = i
+			m.activeDay = i
 		case key.Matches(msg, m.keyMap.Right):
-			i := m.activeDate + 1
+			i := m.activeDay + 1
 			if i > daysInMonth {
 				i = 1
 			}
-			m.activeDate = i
+			m.activeDay = i
 		case key.Matches(msg, m.keyMap.Up):
-			i := m.activeDate - 7
+			i := m.activeDay - 7
 			if i < 0 {
-				i = m.activeDate + 28
+				i = m.activeDay + 28
 				if i > daysInMonth {
 					i = i - 7
 				}
 			}
-			m.activeDate = i
+			m.activeDay = i
 		case key.Matches(msg, m.keyMap.Down):
-			i := m.activeDate + 7
+			i := m.activeDay + 7
 			if i > daysInMonth {
-				i = m.activeDate - 28
-				if m.activeDate < 28 {
+				i = m.activeDay - 28
+				if m.activeDay < 28 {
 					i = i + 7
 				}
 			}
-			m.activeDate = i
+			m.activeDay = i
 		}
 
-		if oldActiveDate != m.activeDate {
+		if oldActiveDay != m.activeDay {
 			cmds = append(cmds, func() tea.Msg {
 				return ActiveDateMsg{
-					Date: time.Date(m.year, m.month, m.activeDate, 0, 0, 0, 0, time.UTC),
+					Date: time.Date(m.year, m.month, m.activeDay, 0, 0, 0, 0, time.UTC),
 				}
 			})
 		}
@@ -243,18 +243,18 @@ func (m MonthModel) ViewWeeks() string {
 
 // ViewDay renders a single day.
 //
-// If zero is passed in for the date, an empty date block will be rendered.
-func (m MonthModel) ViewDay(weekday time.Weekday, date int, body string, lastRow bool) string {
+// If zero is passed in for the day, an empty date block will be rendered.
+func (m MonthModel) ViewDay(weekday time.Weekday, day int, body string, lastRow bool) string {
 	num := m.styles.DateStyles.NumberStyle.Render("")
-	if date > 0 {
+	if day > 0 {
 		style := m.styles.DateStyles.NumberStyle
-		if date == m.activeDate {
+		if day == m.activeDay {
 			style = m.styles.DateStyles.ActiveNumberStyle
 		}
-		num = style.Render(fmt.Sprintf("%d", date))
+		num = style.Render(fmt.Sprintf("%d", day))
 	}
 
-	day := gloss.JoinVertical(
+	dateBlock := gloss.JoinVertical(
 		gloss.Top,
 		num,
 		body,
@@ -282,10 +282,8 @@ func (m MonthModel) ViewDay(weekday time.Weekday, date int, body string, lastRow
 		}
 	}
 
-	// Put border around day content
-	day = style.Render(day)
-
-	return day
+	// Put border around day content and return
+	return style.Render(dateBlock)
 }
 
 // Title generates a title for the calendar that may be used during rendering.
