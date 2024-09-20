@@ -4,6 +4,15 @@
 
 bubbles is a collection of TUI elements for [Bubble Tea](https://github.com/charmbracelet/bubbletea) applications.
 
+## Calendar
+
+![Calendar monthly journal demo](assets/calendar-month-journal.gif)
+
+`calendar` enables the rendering and management of monthly calendars.
+While defaults are configured for the US, things such as the start of the week, days of the week, and more are configurable.
+
+* [Example code, monthly journal](examples/calendar/month-journal/main.go)
+
 ## Radio
 
 ![Simple radio button demo](assets/radio-simple.gif)
