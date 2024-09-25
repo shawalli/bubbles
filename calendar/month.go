@@ -49,7 +49,7 @@ type MonthModel struct {
 // NewMonth creates a new MonthModel.
 func NewMonth(year int, month time.Month) MonthModel {
 	m := MonthModel{
-		keyMap: DefaultKeyMap(),
+		keyMap: DefaultMonthKeyMap(),
 
 		year:  year,
 		month: month,
@@ -65,7 +65,7 @@ func NewMonth(year int, month time.Month) MonthModel {
 	return m
 }
 
-// StartOfWeek sets the first day of the week.
+// StartOfWeek sets the first day of a week.
 func (m MonthModel) StartOfWeek(weekday time.Weekday) MonthModel {
 	m.startOfWeek = weekday
 
@@ -77,7 +77,7 @@ func (m MonthModel) StartOfWeek(weekday time.Weekday) MonthModel {
 	return m
 }
 
-// Styles enables custom styling.
+// Styles sets custom styling.
 func (m MonthModel) Styles(styles MonthStyles) MonthModel {
 	m.styles = styles
 	return m
@@ -156,7 +156,7 @@ func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-// View renders the Model.
+// View renders the MonthModel.
 func (m MonthModel) View() string {
 	return gloss.JoinVertical(
 		gloss.Top,

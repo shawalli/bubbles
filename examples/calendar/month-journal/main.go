@@ -103,8 +103,6 @@ func (m contentModel) View() string {
 }
 
 func getDemoLogs() map[string][]Log {
-	logs := make(map[string][]Log)
-
 	data := map[string]string{
 		"2024-09-01T08:04:05Z": "walk",
 		"2024-09-01T18:24:56Z": "bike",
@@ -125,6 +123,7 @@ func getDemoLogs() map[string][]Log {
 		"2024-09-28T18:27:12Z": "walk",
 	}
 
+	logs := make(map[string][]Log)
 	for ts, d := range data {
 		t, err := time.Parse(time.RFC3339, ts)
 		if err != nil {

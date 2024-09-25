@@ -28,7 +28,7 @@ func NewButton(label string) Button {
 	}
 }
 
-// Styles enables custom styling.
+// Styles sets custom styling.
 func (m Button) Styles(styles ButtonStyles) Button {
 	m.styles = styles
 	return m
