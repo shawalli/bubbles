@@ -29,13 +29,16 @@ type MonthModel struct {
 	// keyMap is key bindings for calendar navigation
 	keyMap KeyMap
 
+	// startOfWeek is the day that represents the beginning of the week
+	startOfWeek time.Weekday
+
+	// weekdays manages labels for weekdays
+	weekdays Weekdays
+
 	// year of the month represented
 	year int
 	// month to represent
 	month time.Month
-
-	// startOfWeek is the day that represents the beginning of the week
-	startOfWeek time.Weekday
 
 	// days contains user-provided information about each day
 	days map[int]tea.Model
@@ -55,6 +58,7 @@ func NewMonth(year int, month time.Month) MonthModel {
 		month: month,
 
 		startOfWeek: time.Sunday,
+		weekdays:    DefaultWeekdays(),
 
 		days:      make(map[int]tea.Model),
 		activeDay: 0,
@@ -68,12 +72,12 @@ func NewMonth(year int, month time.Month) MonthModel {
 // StartOfWeek sets the first day of a week.
 func (m MonthModel) StartOfWeek(weekday time.Weekday) MonthModel {
 	m.startOfWeek = weekday
+	return m
+}
 
-	// Re-shuffle the days-of-the-week labels to match this change
-	dow := m.styles.DaysOfWeek[int(m.startOfWeek):]
-	dow = append(dow, m.styles.DaysOfWeek[:int(m.startOfWeek)]...)
-	m.styles.DaysOfWeek = dow
-
+// Weekdays sets custom weekday labels.
+func (m MonthModel) Weekdays(weekdays Weekdays) MonthModel {
+	m.weekdays = weekdays
 	return m
 }
 
@@ -160,25 +164,30 @@ func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m MonthModel) View() string {
 	return gloss.JoinVertical(
 		gloss.Top,
-		m.ViewDaysOfWeek(),
+		m.ViewHeaders(),
 		m.ViewWeeks(),
 	)
 }
 
-// ViewDaysOfWeek renders the days-of-the-week header.
-func (m MonthModel) ViewDaysOfWeek() string {
-	var days []string
-	for i, wd := range m.styles.DaysOfWeek {
-		style := m.styles.MiddleDaysOfWeekStyle
-		if i == 0 {
-			style = m.styles.LeftDaysOfWeekStyle
-		} else if i == len(m.styles.DaysOfWeek)-1 {
-			style = m.styles.RightDaysOfWeekStyle
+// ViewHeaders renders the weekdays headers.
+func (m MonthModel) ViewHeaders() string {
+	var headers []string
+
+	for i := 0; i < 7; i++ {
+		wd := time.Weekday((7 + int(m.startOfWeek) + i) % 7)
+
+		style := m.styles.MiddleHeaderStyle
+		switch i {
+		case 0:
+			style = m.styles.LeftHeaderStyle
+		case 6:
+			style = m.styles.RightHeaderStyle
 		}
-		days = append(days, style.Render(wd))
+		label, _ := m.weekdays.Get(wd)
+		headers = append(headers, style.Render(label))
 	}
 
-	return gloss.JoinHorizontal(gloss.Top, days...)
+	return gloss.JoinHorizontal(gloss.Top, headers...)
 }
 
 // ViewWeeks renders the calendar main block.

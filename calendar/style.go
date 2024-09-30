@@ -60,14 +60,10 @@ func DefaultDateStyles() DateStyles {
 
 // Styles for rendering the calendar.
 type MonthStyles struct {
-	// Slice of labels to use for the days-of-the-week header
-	// NOTE: Order of this slice should correspond to the start of the week
-	DaysOfWeek []string
-
 	// Days-of-the-week header
-	LeftDaysOfWeekStyle   gloss.Style
-	MiddleDaysOfWeekStyle gloss.Style
-	RightDaysOfWeekStyle  gloss.Style
+	LeftHeaderStyle   gloss.Style
+	MiddleHeaderStyle gloss.Style
+	RightHeaderStyle  gloss.Style
 
 	// Month block interior
 	MiddleLeftDayStyle  gloss.Style
@@ -86,18 +82,16 @@ type MonthStyles struct {
 // DefaultMonthStyles provides default month styles.
 func DefaultMonthStyles() MonthStyles {
 	return MonthStyles{
-		DaysOfWeek: DefaultDaysOfWeek(),
-
 		DateStyles: DefaultDateStyles(),
 
-		LeftDaysOfWeekStyle: gloss.NewStyle().
-			Border(DefaultWeekdayFirstBorder, true).
+		LeftHeaderStyle: gloss.NewStyle().
+			Border(DefaultLeftHeaderBorder, true).
 			Padding(0, 1),
-		MiddleDaysOfWeekStyle: gloss.NewStyle().
-			Border(DefaultWeekdayBorder, true, true, true, false).
+		MiddleHeaderStyle: gloss.NewStyle().
+			Border(DefaultMiddleHeaderBorder, true, true, true, false).
 			Padding(0, 1),
-		RightDaysOfWeekStyle: gloss.NewStyle().
-			Border(DefaultWeekdayLastBorder, true, true, true, false).
+		RightHeaderStyle: gloss.NewStyle().
+			Border(DefaultRightHeaderBorder, true, true, true, false).
 			Padding(0, 1),
 
 		MiddleLeftDayStyle: gloss.NewStyle().
@@ -114,16 +108,6 @@ func DefaultMonthStyles() MonthStyles {
 		BottomRightDayStyle: gloss.NewStyle().
 			Border(DefaultBottomRightDayBorder, false, true, true, false),
 	}
-}
-
-// DefaultDaysOfWeek provides default days-of-the-week shortened values.
-func DefaultDaysOfWeek() []string {
-	return []string{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
-}
-
-// DefaultDaysOfWeek provides default days-of-the-week abbreviated values.
-func DefaultDaysOfWeekShort() []string {
-	return []string{"U", "M", "T", "W", "R", "F", "S"}
 }
 
 // Styles for rendering the calendar.
@@ -203,7 +187,7 @@ var (
 	// ╭───┬
 	// │Sun│
 	// ├───┼
-	DefaultWeekdayFirstBorder = gloss.Border{
+	DefaultLeftHeaderBorder = gloss.Border{
 		Top:         "─",
 		Bottom:      "─",
 		Left:        "│",
@@ -213,11 +197,10 @@ var (
 		BottomLeft:  "├",
 		BottomRight: "┼",
 	}
-	DefaultLeftHeaderBorder = DefaultWeekdayFirstBorder
 	//  ┬───┬
 	//  │Mon│
 	//  ┼───┼
-	DefaultWeekdayBorder = gloss.Border{
+	DefaultMiddleHeaderBorder = gloss.Border{
 		Top:         "─",
 		Bottom:      "─",
 		Left:        "│",
@@ -227,11 +210,10 @@ var (
 		BottomLeft:  "┼",
 		BottomRight: "┼",
 	}
-	DefaultMiddleHeaderBorder = DefaultWeekdayBorder
 	//  ┬───╮
 	//  │Sat│
 	//  ┼───┤
-	DefaultWeekdayLastBorder = gloss.Border{
+	DefaultRightHeaderBorder = gloss.Border{
 		Top:         "─",
 		Bottom:      "─",
 		Left:        "│",
@@ -241,7 +223,6 @@ var (
 		BottomLeft:  "┼",
 		BottomRight: "┤",
 	}
-	DefaultRightHeaderBorder = DefaultWeekdayLastBorder
 
 	//  ├───┼
 	//  │12 │
