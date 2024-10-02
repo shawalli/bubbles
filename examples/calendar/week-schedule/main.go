@@ -213,17 +213,16 @@ func getDemoAppointments() map[time.Time][]Appointment {
 }
 
 func main() {
-	w := calendar.NewWeek(
-		time.Date(2024, time.October, 1, 0, 0, 0, 0, time.UTC),
-	).Weekdays(calendar.Weekdays{
-		time.Monday:    "Mon ",
-		time.Tuesday:   "Tue",
-		time.Wednesday: "Wed",
-		time.Thursday:  "Thu",
-		time.Friday:    "Fri",
-	})
 	m := Model{
-		schedule: w,
+		schedule: calendar.NewWeek(
+			time.Date(2024, time.October, 1, 0, 0, 0, 0, time.UTC),
+		).Weekdays(calendar.Weekdays{
+			time.Monday:    "Mon ",
+			time.Tuesday:   "Tue",
+			time.Wednesday: "Wed",
+			time.Thursday:  "Thu",
+			time.Friday:    "Fri",
+		}),
 	}
 
 	for ts, d := range getDemoAppointments() {

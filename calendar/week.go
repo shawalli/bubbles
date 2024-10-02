@@ -292,7 +292,7 @@ func (m WeekModel) ViewHeaders() string {
 			style = m.styles.RightHeaderStyle
 		}
 
-		style = style.Width(m.styles.CellStyles.Width)
+		style = style.Width(m.styles.DateStyles.Width)
 
 		label = fmt.Sprintf(
 			"%s\n%s",
@@ -314,9 +314,9 @@ func (m WeekModel) ViewHeaders() string {
 
 // ViewDates renders the individual dates.
 func (m WeekModel) ViewDates() string {
-	style := m.styles.CellStyles.BodyStyle.
-		Width(m.styles.CellStyles.Width).
-		Height(m.styles.CellStyles.Height)
+	style := m.styles.DateStyles.BodyStyle.
+		Width(m.styles.DateStyles.Width).
+		Height(m.styles.DateStyles.Height)
 
 	var days []string
 	var maxHeight int
@@ -339,12 +339,12 @@ func (m WeekModel) ViewDates() string {
 
 	for i := 0; i < len(days); i++ {
 		// Figure out if the border style is left, middle, or right
-		style := m.styles.MiddleCellStyle
+		style := m.styles.MiddleDayStyle
 		switch i {
 		case 0:
-			style = m.styles.LeftCellStyle
+			style = m.styles.LeftDayStyle
 		case len(days) - 1:
-			style = m.styles.RightCellStyle
+			style = m.styles.RightDayStyle
 		}
 
 		h := maxHeight + style.GetPaddingTop() + style.GetPaddingBottom()

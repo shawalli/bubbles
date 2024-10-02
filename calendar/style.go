@@ -4,17 +4,6 @@ import (
 	gloss "github.com/charmbracelet/lipgloss"
 )
 
-type CellStyles struct {
-	// Width of the date block
-	Width int
-
-	// Height of the date block
-	Height int
-
-	// Contents style
-	BodyStyle gloss.Style
-}
-
 // Styles for date block rendering.
 type DateStyles struct {
 	// Width of the date block
@@ -121,12 +110,14 @@ type WeekStyles struct {
 	ActiveHeaderStyle gloss.Style
 
 	// Month block bottom row
-	LeftCellStyle   gloss.Style
-	MiddleCellStyle gloss.Style
-	RightCellStyle  gloss.Style
+	LeftDayStyle   gloss.Style
+	MiddleDayStyle gloss.Style
+	RightDayStyle  gloss.Style
 
 	// Date interior
-	CellStyles CellStyles
+	//
+	// Note: NumberStyle and ActiveNumber styles are ignored for WeekModel.
+	DateStyles DateStyles
 	DateFormat string
 }
 
@@ -155,20 +146,20 @@ func DefaultWeekStyles() WeekStyles {
 			Bold(true).
 			Foreground(DefaultActiveColor),
 
-		LeftCellStyle: gloss.NewStyle().
+		LeftDayStyle: gloss.NewStyle().
 			Border(DefaultBottomLeftDayBorder, false, true, true, true).
 			Align(gloss.Center, gloss.Top).
 			Padding(1, 0),
-		MiddleCellStyle: gloss.NewStyle().
+		MiddleDayStyle: gloss.NewStyle().
 			Border(DefaultBottomDayBorder, false, true, true, false).
 			Align(gloss.Center, gloss.Top).
 			Padding(1, 0),
-		RightCellStyle: gloss.NewStyle().
+		RightDayStyle: gloss.NewStyle().
 			Border(DefaultBottomRightDayBorder, false, true, true, false).
 			Align(gloss.Center, gloss.Top).
 			Padding(1, 0),
 
-		CellStyles: CellStyles{
+		DateStyles: DateStyles{
 			Width:  defaultWidth,
 			Height: defaultHeight,
 
