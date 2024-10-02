@@ -92,6 +92,19 @@ func (m MonthModel) Init() tea.Cmd { return nil }
 
 // Update the MonthModel.
 func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	firstVisibleWeekday := m.weekdays.First(time.Date(m.year, m.month, 1, 0, 0, 0, 0, time.UTC))
+
+	inititalizeActiveDay := func() bool {
+		if m.activeDay != 0 {
+			return false
+		}
+		// If uninitialized, set the active day as the first visible day in the month
+		// so that cursor works as expected
+		m.activeDay = 1 + int(firstVisibleWeekday)
+
+		return true
+	}
+
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -99,18 +112,34 @@ func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		daysInMonth := DaysInMonth(m.year, m.month)
 		switch {
 		case key.Matches(msg, m.keyMap.Left):
-			i := m.activeDay - 1
+			inititalizeActiveDay()
+
+			ad := time.Date(m.year, m.month, m.activeDay, 0, 0, 0, 0, time.UTC)
+			diff := (7 + int(ad.Weekday()) - int(m.weekdays.Previous(ad))) % 7
+			i := m.activeDay - diff
 			if i <= 0 {
 				i = daysInMonth
 			}
 			m.activeDay = i
 		case key.Matches(msg, m.keyMap.Right):
-			i := m.activeDay + 1
+			// If initializing the active day, assume the intent of the right event was to move down
+			// into the first visible day of the month.
+			if inititalizeActiveDay() {
+				break
+			}
+
+			ad := time.Date(m.year, m.month, m.activeDay, 0, 0, 0, 0, time.UTC)
+			diff := (7 + int(m.weekdays.Next(ad)) - int(ad.Weekday())) % 7
+			i := m.activeDay + diff
 			if i > daysInMonth {
 				i = 1
 			}
 			m.activeDay = i
 		case key.Matches(msg, m.keyMap.Up):
+			inititalizeActiveDay()
+
+			// No need to calculate visiblity because we can assume that the same weekday in the week prior to the
+			// current week will also be visible
 			i := m.activeDay - 7
 			if i < 0 {
 				i = m.activeDay + 28
@@ -120,6 +149,14 @@ func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.activeDay = i
 		case key.Matches(msg, m.keyMap.Down):
+			// If initializing the active day, assume the intent of the down event was to move down
+			// into the first visible day of the month.
+			if inititalizeActiveDay() {
+				break
+			}
+
+			// No need to calculate visiblity because we can assume that the same weekday in the week following the
+			// current week will also be visible
 			i := m.activeDay + 7
 			if i > daysInMonth {
 				i = m.activeDay - 28
@@ -171,19 +208,25 @@ func (m MonthModel) View() string {
 
 // ViewHeaders renders the weekdays headers.
 func (m MonthModel) ViewHeaders() string {
+	startDate := m.StartOfFirstFullWeek()
+	first := m.weekdays.First(startDate)
+	last := m.weekdays.Last(startDate)
+
 	var headers []string
-
 	for i := 0; i < 7; i++ {
-		wd := time.Weekday((7 + int(m.startOfWeek) + i) % 7)
-
+		day := startDate.AddDate(0, 0, i)
+		label, ok := m.weekdays.Get(day.Weekday())
+		if !ok {
+			continue
+		}
 		style := m.styles.MiddleHeaderStyle
-		switch i {
-		case 0:
+		switch day.Weekday() {
+		case first:
 			style = m.styles.LeftHeaderStyle
-		case 6:
+		case last:
 			style = m.styles.RightHeaderStyle
 		}
-		label, _ := m.weekdays.Get(wd)
+
 		headers = append(headers, style.Render(label))
 	}
 
@@ -196,13 +239,21 @@ func (m MonthModel) ViewWeeks() string {
 	firstWeekdayOfMonth := FirstWeekdayOfMonth(m.year, m.month)
 	weeksInMonth := CalendarRowsInMonth(m.year, m.month, m.startOfWeek)
 
+	startDate := m.StartOfFirstFullWeek()
+	firstVisibleWeekday := m.weekdays.First(startDate)
+
 	var weeks [][]string
 	var week []string
 	for i := 0; i < daysInMonth; i++ {
-		wd := time.Weekday((i + int(firstWeekdayOfMonth)) % 7)
-		// If it is the start of the week, but is not the first day of the month,
+		date := time.Date(m.year, m.month, (i + 1), 0, 0, 0, 0, time.UTC)
+		if !m.weekdays.IsVisible(date.Weekday()) {
+			continue
+		}
+
+		// If it is the first visible day of the week, but is not the first day of the month,
 		// add week to calendar, reset week slice, and begin new week
-		if wd == m.startOfWeek && i != 0 {
+		wd := time.Weekday((i + int(firstWeekdayOfMonth)) % 7)
+		if (wd == firstVisibleWeekday) && ((len(weeks) != 0) || (len(week) != 0)) {
 			weeks = append(weeks, week)
 			week = nil
 		}
@@ -222,8 +273,8 @@ func (m MonthModel) ViewWeeks() string {
 	}
 
 	// Pad end of month
-	for i := len(week); i < 7; i++ {
-		wd := time.Weekday((int(m.startOfWeek) + i) % 7)
+	for i := len(week); i < len(m.weekdays); i++ {
+		wd := time.Weekday((int(firstVisibleWeekday) + i) % 7)
 		day := m.ViewDay(wd, 0, "", true)
 		week = append(week, day)
 	}
@@ -231,7 +282,7 @@ func (m MonthModel) ViewWeeks() string {
 
 	// Pad start of month
 	firstWeek := weeks[0]
-	for i := (7 - len(firstWeek) - 1); i >= 0; i-- {
+	for i := (len(m.weekdays) - len(firstWeek) - 1); i >= 0; i-- {
 		wd := time.Weekday((int(m.startOfWeek) + i) % 7)
 		firstWeek = append([]string{m.ViewDay(wd, 0, "", false)}, firstWeek...)
 	}
@@ -272,14 +323,17 @@ func (m MonthModel) ViewDay(weekday time.Weekday, day int, body string, lastRow 
 	// Figure out if the border style is left, middle, right
 	// or bottom-left, bottom-middle, or bottom-right
 	var style gloss.Style
-	endOfWeek := time.Weekday((int(m.startOfWeek) + 6) % 7)
+	startDate := m.StartOfFirstFullWeek()
+
+	firstVisibleWeekday := m.weekdays.First(startDate)
+	lastVisibleWeekday := m.weekdays.Last(startDate)
 	switch weekday {
-	case m.startOfWeek:
+	case firstVisibleWeekday:
 		style = m.styles.MiddleLeftDayStyle
 		if lastRow {
 			style = m.styles.BottomLeftDayStyle
 		}
-	case endOfWeek:
+	case lastVisibleWeekday:
 		style = m.styles.MiddleRightDayStyle
 		if lastRow {
 			style = m.styles.BottomRightDayStyle
@@ -303,6 +357,13 @@ func (m MonthModel) Title(includeYear bool) string {
 		return d.Format("January 2006")
 	}
 	return d.Format("January")
+}
+
+// StartOfFirstFullWeek calculates the first day of the first full week of the month.
+func (m MonthModel) StartOfFirstFullWeek() time.Time {
+	startDate := time.Date(m.year, m.month, 1, 0, 0, 0, 0, time.UTC)
+	diff := int(startDate.Weekday()) - int(m.startOfWeek)
+	return startDate.AddDate(0, 0, (-1 * diff))
 }
 
 // DaysInMonth calculates the number of days in a given month and year.

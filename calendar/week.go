@@ -13,10 +13,53 @@ import (
 type Weekdays map[time.Weekday]string
 
 // Get the label for a weekday if it exists in the map.
-func (l Weekdays) Get(day time.Weekday) (string, bool) {
-	s, ok := l[day]
+func (w Weekdays) Get(day time.Weekday) (string, bool) {
+	s, ok := w[day]
 
 	return s, ok
+}
+
+// IsVisible determines whether the weekday has a label, and should therefore be visible.
+func (w Weekdays) IsVisible(weekday time.Weekday) bool {
+	_, ok := w.Get(weekday)
+	return ok
+}
+
+// First returns the first visible weekday based on the start date.
+func (w Weekdays) First(startDate time.Time) time.Weekday {
+	startDate = time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, time.UTC)
+	for i := 0; i < 7; i++ {
+		wd := startDate.AddDate(0, 0, i).Weekday()
+		if w.IsVisible(wd) {
+			return wd
+		}
+	}
+	return time.Weekday(-1)
+}
+
+// Last returns the last visible weekday based on the start date.
+func (w Weekdays) Last(startDate time.Time) time.Weekday {
+	startDate = time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, time.UTC)
+	for i := 1; i < 7; i++ {
+		wd := startDate.AddDate(0, 0, (-1 * i)).Weekday()
+		if w.IsVisible(wd) {
+			return wd
+		}
+	}
+	return time.Weekday(-1)
+}
+
+// Next returns the next visible weekday based on the start date.
+func (w Weekdays) Next(startDate time.Time) time.Weekday {
+	startDate = time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, time.UTC)
+	startDate = startDate.AddDate(0, 0, 1)
+	return w.First((startDate))
+}
+
+// Previous returns the prior visible weekday based on the start date.
+func (w Weekdays) Previous(startDate time.Time) time.Weekday {
+	startDate = time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, time.UTC)
+	return w.Last(startDate)
 }
 
 // DefaultWeekdays returns default weekday labels.
@@ -70,7 +113,7 @@ type WeekModel struct {
 
 // NewMonth creates a new WeekModel.
 func NewWeek(sampleDate time.Time) WeekModel {
-	startDay := sampleDate.AddDate(0, 0, -(int(sampleDate.Weekday()) - int(time.Sunday)))
+	startDay := sampleDate.AddDate(0, 0, (-1 * int(sampleDate.Weekday())))
 
 	m := WeekModel{
 		keyMap: DefaultWeekKeyMap(),
@@ -126,7 +169,7 @@ func (m WeekModel) PreviousDate() WeekModel {
 	var prevWeekday time.Weekday
 	for d := 1; d < 7; d++ {
 		pw := time.Weekday((7 + int(ad.Weekday()) - d) % 7)
-		if _, ok := m.weekdays.Get(pw); ok {
+		if m.weekdays.IsVisible(pw) {
 			prevWeekday = pw
 			break
 		}
@@ -154,7 +197,7 @@ func (m WeekModel) NextDate() WeekModel {
 	var nextWeekday time.Weekday
 	for d := 0; d < 7; d++ {
 		nw := time.Weekday((int(ad.Weekday()) + d) % 7)
-		if _, ok := m.weekdays.Get(nw); ok {
+		if m.weekdays.IsVisible(nw) {
 			// If it is the "same" day and it is not directly after being initialized, skip it.
 			// Placing the initialization logic inside the loop allows [WeekModel] to have a startDate that is before
 			// the first visible day. For example, the week starts on Sunday but the first visible day is Monday.
@@ -230,21 +273,10 @@ func (m WeekModel) View() string {
 
 // ViewHeaders renders the weekdays headers.
 func (m WeekModel) ViewHeaders() string {
+	first := m.weekdays.First(m.startDate)
+	last := m.weekdays.Last(m.startDate)
+
 	var headers []string
-
-	// Simplify successive loop by pre-caclulating first and last visible days
-	firstVisibleDay := time.Weekday(-1)
-	lastVisibleDay := time.Weekday(-1)
-	for i := 0; i < 7; i++ {
-		day := m.startDate.AddDate(0, 0, i)
-		if _, ok := m.weekdays.Get(day.Weekday()); ok {
-			if firstVisibleDay == time.Weekday(-1) {
-				firstVisibleDay = day.Weekday()
-			}
-			lastVisibleDay = day.Weekday()
-		}
-	}
-
 	for i := 0; i < 7; i++ {
 		day := m.startDate.AddDate(0, 0, i)
 		label, ok := m.weekdays.Get(day.Weekday())
@@ -254,9 +286,9 @@ func (m WeekModel) ViewHeaders() string {
 
 		style := m.styles.MiddleHeaderStyle
 		switch day.Weekday() {
-		case firstVisibleDay:
+		case first:
 			style = m.styles.LeftHeaderStyle
-		case lastVisibleDay:
+		case last:
 			style = m.styles.RightHeaderStyle
 		}
 
@@ -290,7 +322,7 @@ func (m WeekModel) ViewDates() string {
 	var maxHeight int
 	for i := 0; i < 7; i++ {
 		day := m.startDate.AddDate(0, 0, i)
-		if _, ok := m.weekdays.Get(day.Weekday()); !ok {
+		if !m.weekdays.IsVisible(day.Weekday()) {
 			// Don't render anything for that day if it isn't in the header list.
 			continue
 		}
