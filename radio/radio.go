@@ -61,7 +61,7 @@ func (m Model) Wraparound(w bool) Model {
 	return m
 }
 
-// Styles enables custom styling.
+// Styles sets custom styling.
 func (m Model) Styles(styles Styles) Model {
 	m.styles = styles
 	return m

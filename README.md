@@ -8,10 +8,17 @@ bubbles is a collection of TUI elements for [Bubble Tea](https://github.com/char
 
 ![Calendar monthly journal demo](assets/calendar-month-journal.gif)
 
-`calendar` enables the rendering and management of monthly calendars.
-While defaults are configured for the US, things such as the start of the week, days of the week, and more are configurable.
+![Calendar monthly shift schedule demo](assets/calendar-month-shift-schedule.gif)
+
+![Calendar weekly schedule demo](assets/calendar-week-schedule.gif)
+
+`calendar` enables the rendering and management of monthly and weekly calendars.
+While defaults are configured for the US, things such as the start of the week, days of the week,
+and more are configurable.
 
 * [Example code, monthly journal](examples/calendar/month-journal/main.go)
+* [Example code, monthly shift schedule](examples/calendar/month-shift-schedule/main.go)
+* [Example code, weekly schedule](examples/calendar/week-schedule/main.go)
 
 ## Radio
 
