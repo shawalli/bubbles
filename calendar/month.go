@@ -206,7 +206,7 @@ func (m MonthModel) View() string {
 	)
 }
 
-// ViewHeaders renders the weekdays headers.
+// ViewHeaders renders the weekday headers.
 func (m MonthModel) ViewHeaders() string {
 	startDate := m.StartOfFirstFullWeek()
 	first := m.weekdays.First(startDate)
@@ -250,7 +250,7 @@ func (m MonthModel) ViewWeeks() string {
 			continue
 		}
 
-		// If it is the first visible day of the week, but is not the first day of the month,
+		// If it is the first visible day of the week, but is not the first week of the month,
 		// add week to calendar, reset week slice, and begin new week
 		wd := time.Weekday((i + int(firstWeekdayOfMonth)) % 7)
 		if (wd == firstVisibleWeekday) && ((len(weeks) != 0) || (len(week) != 0)) {
@@ -323,8 +323,8 @@ func (m MonthModel) ViewDay(weekday time.Weekday, day int, body string, lastRow 
 	// Figure out if the border style is left, middle, right
 	// or bottom-left, bottom-middle, or bottom-right
 	var style gloss.Style
-	startDate := m.StartOfFirstFullWeek()
 
+	startDate := m.StartOfFirstFullWeek()
 	firstVisibleWeekday := m.weekdays.First(startDate)
 	lastVisibleWeekday := m.weekdays.Last(startDate)
 	switch weekday {

@@ -122,8 +122,6 @@ type WeekStyles struct {
 }
 
 func DefaultWeekStyles() WeekStyles {
-	// Default days-of-the-week labels are 3 characters, so this is 3-characters and 1-character
-	// of left/right padding.
 	defaultWidth := 15
 	defaultHeight := 5
 

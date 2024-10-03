@@ -111,7 +111,7 @@ type WeekModel struct {
 	styles WeekStyles
 }
 
-// NewMonth creates a new WeekModel.
+// NewWeek creates a new WeekModel.
 func NewWeek(sampleDate time.Time) WeekModel {
 	startDay := sampleDate.AddDate(0, 0, (-1 * int(sampleDate.Weekday())))
 
@@ -157,9 +157,11 @@ func (m WeekModel) Styles(styles WeekStyles) WeekModel {
 // PreviousDate sets the activeDate to the previous visible date.
 //
 // Notes:
-//   - The [MonthModelweekdays] map is used to determine the previous date that has a day label and should therefore
+//   - The Weekdays map is used to determine the previous date that has a day label and should therefore
 //     be visible.
 //   - If moving backwards from the first visible day, the method rolls over to the last visible day of the week.
+//   - If the active date is unset (initial state), this method will set the last visible weekday as the "previous"
+//     date.
 func (m WeekModel) PreviousDate() WeekModel {
 	ad := m.activeDate
 	if m.activeDate == (time.Time{}) {
@@ -184,10 +186,10 @@ func (m WeekModel) PreviousDate() WeekModel {
 // NextDate sets the activeDate to the next visible date.
 //
 // Notes:
-//   - The [MonthModelweekdays] map is used to determine the next date that has a day label and should therefore be
-//     visible.
+//   - The Weekdays map is used to determine the next date that has a day label and should therefore be visible.
 //   - If moving forwards from the last visible day, the method rolls over to the first visible day of the week.
-//   - If the active date is unset (initial state), this method will set the next
+//   - If the active date is unset (initial state), this method will set the first visible weekday as the "next"
+//     date.
 func (m WeekModel) NextDate() WeekModel {
 	ad := m.activeDate
 	if m.activeDate == (time.Time{}) {
@@ -271,7 +273,7 @@ func (m WeekModel) View() string {
 	)
 }
 
-// ViewHeaders renders the weekdays headers.
+// ViewHeaders renders the weekday headers.
 func (m WeekModel) ViewHeaders() string {
 	first := m.weekdays.First(m.startDate)
 	last := m.weekdays.Last(m.startDate)

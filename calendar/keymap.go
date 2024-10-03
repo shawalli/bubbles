@@ -12,7 +12,7 @@ type KeyMap struct {
 	Down  key.Binding
 }
 
-// DefaultMonthKeyMap contains default key mappings for calendar navigation.
+// DefaultMonthKeyMap contains default key mappings for monthly navigation.
 func DefaultMonthKeyMap() KeyMap {
 	return KeyMap{
 		Left:  key.NewBinding(key.WithKeys("left"), key.WithHelp("left", "←")),
@@ -22,7 +22,7 @@ func DefaultMonthKeyMap() KeyMap {
 	}
 }
 
-// DefaultMonthKeyMap contains default key mappings for calendar navigation.
+// DefaultWeekKeyMap contains default key mappings for weekly navigation.
 func DefaultWeekKeyMap() KeyMap {
 	return KeyMap{
 		Left:  key.NewBinding(key.WithKeys("left"), key.WithHelp("left", "←")),
