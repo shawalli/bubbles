@@ -75,12 +75,15 @@ func DefaultMonthStyles() MonthStyles {
 
 		LeftHeaderStyle: gloss.NewStyle().
 			Border(DefaultLeftHeaderBorder, true).
+			Align(gloss.Center).
 			Padding(0, 1),
 		MiddleHeaderStyle: gloss.NewStyle().
 			Border(DefaultMiddleHeaderBorder, true, true, true, false).
+			Align(gloss.Center).
 			Padding(0, 1),
 		RightHeaderStyle: gloss.NewStyle().
 			Border(DefaultRightHeaderBorder, true, true, true, false).
+			Align(gloss.Center).
 			Padding(0, 1),
 
 		MiddleLeftDayStyle: gloss.NewStyle().

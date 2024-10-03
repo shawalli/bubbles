@@ -226,6 +226,7 @@ func (m MonthModel) ViewHeaders() string {
 		case last:
 			style = m.styles.RightHeaderStyle
 		}
+		style = style.Width(m.styles.DateStyles.Width)
 
 		headers = append(headers, style.Render(label))
 	}
@@ -344,6 +345,7 @@ func (m MonthModel) ViewDay(weekday time.Weekday, day int, body string, lastRow 
 			style = m.styles.BottomDayStyle
 		}
 	}
+	style = style.Width(m.styles.DateStyles.Width)
 
 	// Put border around day content and return
 	return style.Render(dateBlock)
