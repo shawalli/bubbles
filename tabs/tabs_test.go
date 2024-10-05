@@ -41,7 +41,7 @@ func Test_New(t *testing.T) {
 	assert.False(t, got.wraparound)
 }
 
-func Test_New_Wraparound(t *testing.T) {
+func TestModel_Wraparound(t *testing.T) {
 	// Setup
 	mockTerm(t)
 
@@ -52,7 +52,7 @@ func Test_New_Wraparound(t *testing.T) {
 	assert.True(t, got.wraparound)
 }
 
-func Test_New_Styles(t *testing.T) {
+func TestModel_Styles(t *testing.T) {
 	// Setup
 	mockTerm(t)
 
@@ -65,7 +65,7 @@ func Test_New_Styles(t *testing.T) {
 	assert.Equal(t, testStyles, got.styles)
 }
 
-func Test_New_Width(t *testing.T) {
+func TestModel_Width(t *testing.T) {
 	// Setup
 	mockTerm(t)
 
@@ -77,7 +77,7 @@ func Test_New_Width(t *testing.T) {
 	assert.Equal(t, testTermHeight, got.height)
 }
 
-func Test_New_Height(t *testing.T) {
+func TestModel_Height(t *testing.T) {
 	// Setup
 	mockTerm(t)
 
