@@ -268,45 +268,60 @@ func (tm testModel) View() string                            { return tm.content
 
 func TestModel_Update(t *testing.T) {
 	tests := []struct {
-		name          string
-		testActiveTab int
-		testMsg       tea.Msg
-		wraparound    bool
+		name       string
+		activeTab  int
+		wraparound bool
+		testMsg    tea.Msg
 	}{
 		{
-			name:          "next-tab",
-			testActiveTab: 0,
-			testMsg:       tea.KeyMsg{Type: tea.KeyTab},
+			name:      "previous-tab",
+			activeTab: 2,
+			testMsg:   tea.KeyMsg{Type: tea.KeyShiftTab},
 		},
 		{
-			name:          "previous-tab-lower-bound",
-			testActiveTab: 0,
-			testMsg:       tea.KeyMsg{Type: tea.KeyShiftTab},
+			name:    "previous-tab-lower-bound",
+			testMsg: tea.KeyMsg{Type: tea.KeyShiftTab},
 		},
 		{
-			name:          "tab-num-4",
-			testActiveTab: 0,
+			name:       "previous-tab-lower-bound-wraparound",
+			wraparound: true,
+			testMsg:    tea.KeyMsg{Type: tea.KeyShiftTab},
+		},
+		{
+			name:    "next-tab",
+			testMsg: tea.KeyMsg{Type: tea.KeyTab},
+		},
+		{
+			name:      "next-tab-upper-bound",
+			activeTab: 3,
+			testMsg:   tea.KeyMsg{Type: tea.KeyTab},
+		},
+		{
+			name:       "next-tab-upper-bound-wraparound",
+			activeTab:  3,
+			wraparound: true,
+			testMsg:    tea.KeyMsg{Type: tea.KeyTab},
+		},
+		{
+			name: "tab-num-1",
 			testMsg: tea.KeyMsg{
 				Type:  tea.KeyRunes,
-				Runes: []rune{'4'},
+				Runes: []rune{'1'},
 			},
 		},
 		{
-			name:          "next-tab-upper-bound",
-			testActiveTab: 3,
-			testMsg:       tea.KeyMsg{Type: tea.KeyTab},
+			name: "tab-num-3",
+			testMsg: tea.KeyMsg{
+				Type:  tea.KeyRunes,
+				Runes: []rune{'3'},
+			},
 		},
 		{
-			name:          "next-tab-upper-bound-wraparound",
-			testActiveTab: 3,
-			testMsg:       tea.KeyMsg{Type: tea.KeyTab},
-			wraparound:    true,
-		},
-		{
-			name:          "previous-tab-lower-bound-wraparound",
-			testActiveTab: 0,
-			testMsg:       tea.KeyMsg{Type: tea.KeyShiftTab},
-			wraparound:    true,
+			name: "tab-num-invalid",
+			testMsg: tea.KeyMsg{
+				Type:  tea.KeyRunes,
+				Runes: []rune{'5'},
+			},
 		},
 	}
 
@@ -321,7 +336,7 @@ func TestModel_Update(t *testing.T) {
 			}
 			tm := New(testTabs...).
 				Wraparound(tt.wraparound).
-				SetTab(tt.testActiveTab)
+				SetTab(tt.activeTab)
 
 			// Test
 			v, _ := tm.Update(tt.testMsg)
