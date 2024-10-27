@@ -60,6 +60,23 @@ func (w Weekdays) Previous(startDate time.Time) time.Weekday {
 	return w.Last(startDate)
 }
 
+// Spread calculates the difference between the first visible day and the last visible day based on the startDate.
+func (w Weekdays) Spread(startDate time.Time) int {
+	first := w.First(startDate)
+
+	spread := 6
+	for i := 1; i < 7; i++ {
+		wd := time.Weekday((7 + int(first) - i) % 7)
+
+		if w.IsVisible(wd) {
+			break
+		}
+		spread -= 1
+	}
+
+	return spread
+}
+
 // DefaultWeekdays returns default weekday labels.
 func DefaultWeekdays() Weekdays {
 	return Weekdays{
