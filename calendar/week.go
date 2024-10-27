@@ -51,14 +51,12 @@ func (w Weekdays) Last(startDate time.Time) time.Weekday {
 
 // Next returns the next visible weekday based on the start date.
 func (w Weekdays) Next(startDate time.Time) time.Weekday {
-	startDate = time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, time.UTC)
 	startDate = startDate.AddDate(0, 0, 1)
 	return w.First((startDate))
 }
 
 // Previous returns the prior visible weekday based on the start date.
 func (w Weekdays) Previous(startDate time.Time) time.Weekday {
-	startDate = time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, time.UTC)
 	return w.Last(startDate)
 }
 
@@ -197,15 +195,9 @@ func (m WeekModel) NextDate() WeekModel {
 	}
 
 	var nextWeekday time.Weekday
-	for d := 0; d < 7; d++ {
+	for d := 1; d < 7; d++ {
 		nw := time.Weekday((int(ad.Weekday()) + d) % 7)
 		if m.weekdays.IsVisible(nw) {
-			// If it is the "same" day and it is not directly after being initialized, skip it.
-			// Placing the initialization logic inside the loop allows [WeekModel] to have a startDate that is before
-			// the first visible day. For example, the week starts on Sunday but the first visible day is Monday.
-			if (d == 0) && (m.activeDate != (time.Time{})) {
-				continue
-			}
 			nextWeekday = nw
 			break
 		}

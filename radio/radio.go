@@ -41,8 +41,10 @@ type Model struct {
 // New creates a new [Model].
 func New(vertical bool, buttons ...tea.Model) Model {
 	// Activate first button
-	b, _ := buttons[0].Update(RadioButtonMsg{State: true})
-	buttons[0] = b
+	if len(buttons) > 0 {
+		b, _ := buttons[0].Update(RadioButtonMsg{State: true})
+		buttons[0] = b
+	}
 
 	m := Model{
 		keyMap:   DefaultKeyMap(vertical),
