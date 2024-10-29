@@ -687,6 +687,50 @@ func TestWeekdays_Spread(t *testing.T) {
 	}
 }
 
+func TestWeekdays_String(t *testing.T) {
+	tests := []struct {
+		name     string
+		weekdays Weekdays
+		want     string
+	}{
+		{
+			name:     "default",
+			weekdays: DefaultWeekdays(),
+			want:     "[Sun, Mon, Tue, Wed, Thu, Fri, Sat]",
+		},
+		{
+			name:     "default-short",
+			weekdays: DefaultWeekdaysShort(),
+			want:     "[U, M, T, W, R, F, S]",
+		},
+		{
+			name:     "five-day",
+			weekdays: Weekdays{time.Monday: "M", time.Tuesday: "T", time.Wednesday: "W", time.Thursday: "R", time.Friday: "F"},
+			want:     "[M, T, W, R, F]",
+		},
+		{
+			name:     "weekend",
+			weekdays: Weekdays{time.Sunday: "U", time.Friday: "F", time.Saturday: "S"},
+			want:     "[U, F, S]",
+		},
+		{
+			name:     "empty",
+			weekdays: Weekdays{},
+			want:     "[]",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Test
+			got := tt.weekdays.String()
+
+			// Assertions
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
 func Test_NewWeek(t *testing.T) {
 	sampleDate := newDate(2024, time.September, 22)
 

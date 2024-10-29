@@ -2,6 +2,7 @@ package calendar
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -17,6 +18,33 @@ func (w Weekdays) Get(day time.Weekday) (string, bool) {
 	s, ok := w[day]
 
 	return s, ok
+}
+
+// String returns a stringified representation of Weekdays.
+func (w Weekdays) String() string {
+	var wd []string
+	if l, ok := w[time.Sunday]; ok {
+		wd = append(wd, l)
+	}
+	if l, ok := w[time.Monday]; ok {
+		wd = append(wd, l)
+	}
+	if l, ok := w[time.Tuesday]; ok {
+		wd = append(wd, l)
+	}
+	if l, ok := w[time.Wednesday]; ok {
+		wd = append(wd, l)
+	}
+	if l, ok := w[time.Thursday]; ok {
+		wd = append(wd, l)
+	}
+	if l, ok := w[time.Friday]; ok {
+		wd = append(wd, l)
+	}
+	if l, ok := w[time.Saturday]; ok {
+		wd = append(wd, l)
+	}
+	return fmt.Sprintf("[%s]", strings.Join(wd, ", "))
 }
 
 // IsVisible determines whether the weekday has a label, and should therefore be visible.
