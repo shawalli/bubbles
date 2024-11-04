@@ -5,8 +5,8 @@ go 1.23.1
 require (
 	github.com/charmbracelet/bubbles v0.20.0
 	github.com/charmbracelet/bubbletea v1.1.1
-	github.com/charmbracelet/lipgloss v0.13.0
-	github.com/charmbracelet/x/ansi v0.3.2
+	github.com/charmbracelet/lipgloss v1.0.0
+	github.com/charmbracelet/x/ansi v0.4.2
 	github.com/charmbracelet/x/exp/golden v0.0.0-20240906161213-162f3037fef5
 	github.com/charmbracelet/x/term v0.2.0
 	github.com/stretchr/testify v1.9.0
