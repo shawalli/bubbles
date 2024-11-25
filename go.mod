@@ -9,7 +9,7 @@ require (
 	github.com/charmbracelet/x/ansi v0.3.2
 	github.com/charmbracelet/x/exp/golden v0.0.0-20240906161213-162f3037fef5
 	github.com/charmbracelet/x/term v0.2.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 )
 
 require (
