@@ -99,7 +99,10 @@ func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		// If uninitialized, set the active day as the first visible day in the month
 		// so that cursor works as expected
-		m.activeDay = 1 + int(firstVisibleWeekday)
+		firstDay := time.Date(m.year, m.month, 1, 0, 0, 0, 0, time.UTC)
+		offset := (7 + (int(firstVisibleWeekday) - int(firstDay.Weekday()))) % 7
+
+		m.activeDay = 1 + offset
 
 		return true
 	}
@@ -114,10 +117,14 @@ func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			inititalizeActiveDay()
 
 			ad := time.Date(m.year, m.month, m.activeDay, 0, 0, 0, 0, time.UTC)
-			diff := (7 + int(ad.Weekday()) - int(m.weekdays.Previous(ad))) % 7
+			diff := (7 + (int(ad.Weekday()) - int(m.weekdays.Previous(ad)))) % 7
 			i := m.activeDay - diff
 			if i <= 0 {
+				// Find last visible day of month
 				i = daysInMonth
+				for d := time.Date(m.year, m.month, i, 0, 0, 0, 0, time.UTC); !m.weekdays.IsVisible(d.Weekday()); d = d.AddDate(0, 0, -1) {
+					i -= 1
+				}
 			}
 			m.activeDay = i
 		case key.Matches(msg, m.keyMap.Right):
