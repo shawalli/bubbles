@@ -22,6 +22,14 @@ func newDate(year int, month time.Month, day int) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 }
 
+func mustTimeParse(v string) time.Time {
+	t, err := time.Parse("2006-01-02", v)
+	if err != nil {
+		panic(err)
+	}
+	return t
+}
+
 func TestWeekdays_Get(t *testing.T) {
 	// Setup
 	weekdays := Weekdays{
@@ -543,6 +551,179 @@ func TestWeekdays_Previous(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Test
 			got := tt.weekdays.Previous(tt.startDate)
+
+			// Assertions
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestWeekdays_Spread(t *testing.T) {
+	tests := []struct {
+		name      string
+		weekdays  Weekdays
+		startDate time.Time
+		want      int
+	}{
+		{
+			name:      "7day-no-gaps",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Tuesday: "T", time.Wednesday: "W", time.Thursday: "R", time.Friday: "F", time.Saturday: "S"},
+			startDate: mustTimeParse("2024-09-01"),
+			want:      6,
+		},
+		{
+			name:      "6day-no-gaps",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Tuesday: "T", time.Wednesday: "W", time.Thursday: "R", time.Saturday: "S"},
+			startDate: mustTimeParse("2024-09-01"),
+			want:      6,
+		},
+		{
+			name:      "6day-gap1-1",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Tuesday: "T", time.Wednesday: "W", time.Thursday: "R", time.Friday: "F"},
+			startDate: mustTimeParse("2024-09-01"),
+			want:      5,
+		},
+		{
+			name:      "6day-gap1-2",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Wednesday: "W", time.Thursday: "R", time.Friday: "F", time.Saturday: "S"},
+			startDate: mustTimeParse("2024-09-04"),
+			want:      5,
+		},
+		{
+			name:      "5day-no-gaps",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Wednesday: "W", time.Saturday: "S"},
+			startDate: mustTimeParse("2024-09-01"),
+			want:      6,
+		},
+		{
+			name:      "5day-gap1-1",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Tuesday: "T", time.Wednesday: "W", time.Friday: "F"},
+			startDate: mustTimeParse("2024-09-01"),
+			want:      5,
+		},
+		{
+			name:      "5day-gap1-2",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Wednesday: "W", time.Thursday: "R", time.Saturday: "S"},
+			startDate: mustTimeParse("2024-09-04"),
+			want:      5,
+		},
+		{
+			name:      "5day-gap2-1",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Tuesday: "T", time.Wednesday: "W", time.Thursday: "R"},
+			startDate: mustTimeParse("2024-09-01"),
+			want:      4,
+		},
+		{
+			name:      "5day-gap2-2",
+			weekdays:  Weekdays{time.Monday: "M", time.Tuesday: "T", time.Wednesday: "W", time.Thursday: "R", time.Friday: "F"},
+			startDate: mustTimeParse("2024-09-02"),
+			want:      4,
+		},
+		{
+			name:      "4day-no-gaps",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Tuesday: "T", time.Saturday: "S"},
+			startDate: mustTimeParse("2024-09-01"),
+			want:      6,
+		},
+		{
+			name:      "4day-gap1-1",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Tuesday: "T", time.Friday: "F"},
+			startDate: mustTimeParse("2024-09-01"),
+			want:      5,
+		},
+		{
+			name:      "4day-gap1-2",
+			weekdays:  Weekdays{time.Sunday: "U", time.Tuesday: "M", time.Thursday: "R", time.Friday: "F"},
+			startDate: mustTimeParse("2024-09-03"),
+			want:      5,
+		},
+
+		{
+			name:      "4day-gap2-1",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Tuesday: "T", time.Thursday: "F"},
+			startDate: mustTimeParse("2024-09-01"),
+			want:      4,
+		},
+		{
+			name:      "4day-gap2-2",
+			weekdays:  Weekdays{time.Monday: "M", time.Tuesday: "T", time.Wednesday: "W", time.Friday: "F"},
+			startDate: mustTimeParse("2024-09-02"),
+			want:      4,
+		},
+		{
+			name:      "4day-gap2-3",
+			weekdays:  Weekdays{time.Tuesday: "T", time.Wednesday: "W", time.Thursday: "R", time.Saturday: "S"},
+			startDate: mustTimeParse("2024-09-01"),
+			want:      4,
+		},
+		{
+			name:      "4day-gap3-1",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Tuesday: "T", time.Wednesday: "W"},
+			startDate: mustTimeParse("2024-09-01"),
+			want:      3,
+		},
+		{
+			name:      "4day-gap3-2",
+			weekdays:  Weekdays{time.Tuesday: "T", time.Wednesday: "W", time.Thursday: "R", time.Friday: "F"},
+			startDate: mustTimeParse("2024-09-03"),
+			want:      3,
+		},
+		{
+			name:      "4day-gap3-3",
+			weekdays:  Weekdays{time.Sunday: "U", time.Monday: "M", time.Friday: "F", time.Saturday: "S"},
+			startDate: mustTimeParse("2024-09-03"),
+			want:      3,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Test
+			got := tt.weekdays.Spread(tt.startDate)
+
+			// Assertions
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestWeekdays_String(t *testing.T) {
+	tests := []struct {
+		name     string
+		weekdays Weekdays
+		want     string
+	}{
+		{
+			name:     "default",
+			weekdays: DefaultWeekdays(),
+			want:     "[Sun, Mon, Tue, Wed, Thu, Fri, Sat]",
+		},
+		{
+			name:     "default-short",
+			weekdays: DefaultWeekdaysShort(),
+			want:     "[U, M, T, W, R, F, S]",
+		},
+		{
+			name:     "five-day",
+			weekdays: Weekdays{time.Monday: "M", time.Tuesday: "T", time.Wednesday: "W", time.Thursday: "R", time.Friday: "F"},
+			want:     "[M, T, W, R, F]",
+		},
+		{
+			name:     "weekend",
+			weekdays: Weekdays{time.Sunday: "U", time.Friday: "F", time.Saturday: "S"},
+			want:     "[U, F, S]",
+		},
+		{
+			name:     "empty",
+			weekdays: Weekdays{},
+			want:     "[]",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Test
+			got := tt.weekdays.String()
 
 			// Assertions
 			assert.Equal(t, tt.want, got)

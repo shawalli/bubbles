@@ -60,8 +60,7 @@ func NewMonth(year int, month time.Month) MonthModel {
 		startOfWeek: time.Sunday,
 		weekdays:    DefaultWeekdays(),
 
-		days:      make(map[int]tea.Model),
-		activeDay: 0,
+		days: make(map[int]tea.Model),
 
 		styles: DefaultMonthStyles(),
 	}
@@ -100,7 +99,10 @@ func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		// If uninitialized, set the active day as the first visible day in the month
 		// so that cursor works as expected
-		m.activeDay = 1 + int(firstVisibleWeekday)
+		firstDay := time.Date(m.year, m.month, 1, 0, 0, 0, 0, time.UTC)
+		offset := (7 + (int(firstVisibleWeekday) - int(firstDay.Weekday()))) % 7
+
+		m.activeDay = 1 + offset
 
 		return true
 	}
@@ -115,10 +117,14 @@ func (m MonthModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			inititalizeActiveDay()
 
 			ad := time.Date(m.year, m.month, m.activeDay, 0, 0, 0, 0, time.UTC)
-			diff := (7 + int(ad.Weekday()) - int(m.weekdays.Previous(ad))) % 7
+			diff := (7 + (int(ad.Weekday()) - int(m.weekdays.Previous(ad)))) % 7
 			i := m.activeDay - diff
 			if i <= 0 {
+				// Find last visible day of month
 				i = daysInMonth
+				for d := time.Date(m.year, m.month, i, 0, 0, 0, 0, time.UTC); !m.weekdays.IsVisible(d.Weekday()); d = d.AddDate(0, 0, -1) {
+					i -= 1
+				}
 			}
 			m.activeDay = i
 		case key.Matches(msg, m.keyMap.Right):
@@ -208,7 +214,7 @@ func (m MonthModel) View() string {
 
 // ViewHeaders renders the weekday headers.
 func (m MonthModel) ViewHeaders() string {
-	startDate := m.StartOfFirstFullWeek()
+	startDate := m.StartOfFirstWeek()
 	first := m.weekdays.First(startDate)
 	last := m.weekdays.Last(startDate)
 
@@ -240,8 +246,15 @@ func (m MonthModel) ViewWeeks() string {
 	firstWeekdayOfMonth := FirstWeekdayOfMonth(m.year, m.month)
 	weeksInMonth := CalendarRowsInMonth(m.year, m.month, m.startOfWeek)
 
-	startDate := m.StartOfFirstFullWeek()
-	firstVisibleWeekday := m.weekdays.First(startDate)
+	// If the first week starts in the previous month and the last visible day of that week is still in the previous
+	// month, remove it from the number of weeks for the purpose of rendering the calendar
+	calendarStartDate := m.StartOfFirstWeek()
+	spread := m.weekdays.Spread(calendarStartDate)
+	if calendarStartDate.AddDate(0, 0, spread).Month() < m.month {
+		weeksInMonth -= 1
+	}
+
+	firstVisibleWeekday := m.weekdays.First(calendarStartDate)
 
 	var weeks [][]string
 	var week []string
@@ -251,10 +264,9 @@ func (m MonthModel) ViewWeeks() string {
 			continue
 		}
 
-		// If it is the first visible day of the week, but is not the first week of the month,
-		// add week to calendar, reset week slice, and begin new week
+		// If beginning a new week, only add it if the week has content
 		wd := time.Weekday((i + int(firstWeekdayOfMonth)) % 7)
-		if (wd == firstVisibleWeekday) && ((len(weeks) != 0) || (len(week) != 0)) {
+		if (wd == firstVisibleWeekday) && (len(week) != 0) {
 			weeks = append(weeks, week)
 			week = nil
 		}
@@ -270,26 +282,37 @@ func (m MonthModel) ViewWeeks() string {
 
 		// Add bordered day to week
 		week = append(week, day)
-
 	}
 
 	// Pad end of month
-	for i := len(week); i < len(m.weekdays); i++ {
-		wd := time.Weekday((int(firstVisibleWeekday) + i) % 7)
-		day := m.ViewDay(wd, 0, "", true)
+	padDay := time.Date(m.year, m.month+1, 0, 0, 0, 0, 0, time.UTC)
+	for len(week) < len(m.weekdays) {
+		padDay = padDay.AddDate(0, 0, 1)
+
+		if !m.weekdays.IsVisible(padDay.Weekday()) {
+			continue
+		}
+		day := m.ViewDay(padDay.Weekday(), 0, "", true)
 		week = append(week, day)
 	}
 	weeks = append(weeks, week)
 
 	// Pad start of month
-	firstWeek := weeks[0]
-	for i := (len(m.weekdays) - len(firstWeek) - 1); i >= 0; i-- {
-		wd := time.Weekday((int(m.startOfWeek) + i) % 7)
-		firstWeek = append([]string{m.ViewDay(wd, 0, "", false)}, firstWeek...)
-	}
-	weeks[0] = firstWeek
+	var pad []string
+	padDay = m.StartOfFirstWeek().AddDate(0, 0, -1)
+	week = weeks[0]
+	for (len(week) + len(pad)) < len(m.weekdays) {
+		padDay = padDay.AddDate(0, 0, 1)
 
-	// Combine each week into a horiztonal string
+		if !m.weekdays.IsVisible(padDay.Weekday()) {
+			continue
+		}
+		day := m.ViewDay(padDay.Weekday(), 0, "", false)
+		pad = append(pad, day)
+	}
+	weeks[0] = append(pad, week...)
+
+	// Combine each week into a horizontal string
 	var rows []string
 	for _, week := range weeks {
 		rows = append(
@@ -325,7 +348,7 @@ func (m MonthModel) ViewDay(weekday time.Weekday, day int, body string, lastRow 
 	// or bottom-left, bottom-middle, or bottom-right
 	var style gloss.Style
 
-	startDate := m.StartOfFirstFullWeek()
+	startDate := m.StartOfFirstWeek()
 	firstVisibleWeekday := m.weekdays.First(startDate)
 	lastVisibleWeekday := m.weekdays.Last(startDate)
 	switch weekday {
@@ -361,10 +384,13 @@ func (m MonthModel) Title(includeYear bool) string {
 	return d.Format("January")
 }
 
-// StartOfFirstFullWeek calculates the first day of the first full week of the month.
-func (m MonthModel) StartOfFirstFullWeek() time.Time {
+// StartOfFirstWeek calculates the first day of the first full week of the month.
+func (m MonthModel) StartOfFirstWeek() time.Time {
 	startDate := time.Date(m.year, m.month, 1, 0, 0, 0, 0, time.UTC)
 	diff := int(startDate.Weekday()) - int(m.startOfWeek)
+	if diff < 0 {
+		diff = diff + 7
+	}
 	return startDate.AddDate(0, 0, (-1 * diff))
 }
 
@@ -387,7 +413,6 @@ func CalendarRowsInMonth(year int, month time.Month, startOfWeek time.Weekday) i
 	fdom := FirstWeekdayOfMonth(year, month)
 	for i := 1; i <= dim; i++ {
 		wd := time.Weekday(((i - 1) + int(fdom)) % 7)
-
 		if wd == startOfWeek && i != 1 {
 			n++
 		}

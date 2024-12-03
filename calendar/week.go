@@ -2,6 +2,7 @@ package calendar
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -17,6 +18,33 @@ func (w Weekdays) Get(day time.Weekday) (string, bool) {
 	s, ok := w[day]
 
 	return s, ok
+}
+
+// String returns a stringified representation of Weekdays.
+func (w Weekdays) String() string {
+	var wd []string
+	if l, ok := w[time.Sunday]; ok {
+		wd = append(wd, l)
+	}
+	if l, ok := w[time.Monday]; ok {
+		wd = append(wd, l)
+	}
+	if l, ok := w[time.Tuesday]; ok {
+		wd = append(wd, l)
+	}
+	if l, ok := w[time.Wednesday]; ok {
+		wd = append(wd, l)
+	}
+	if l, ok := w[time.Thursday]; ok {
+		wd = append(wd, l)
+	}
+	if l, ok := w[time.Friday]; ok {
+		wd = append(wd, l)
+	}
+	if l, ok := w[time.Saturday]; ok {
+		wd = append(wd, l)
+	}
+	return fmt.Sprintf("[%s]", strings.Join(wd, ", "))
 }
 
 // IsVisible determines whether the weekday has a label, and should therefore be visible.
@@ -58,6 +86,23 @@ func (w Weekdays) Next(startDate time.Time) time.Weekday {
 // Previous returns the prior visible weekday based on the start date.
 func (w Weekdays) Previous(startDate time.Time) time.Weekday {
 	return w.Last(startDate)
+}
+
+// Spread calculates the difference between the first visible day and the last visible day based on the startDate.
+func (w Weekdays) Spread(startDate time.Time) int {
+	first := w.First(startDate)
+
+	spread := 6
+	for i := 1; i < 7; i++ {
+		wd := time.Weekday((7 + int(first) - i) % 7)
+
+		if w.IsVisible(wd) {
+			break
+		}
+		spread -= 1
+	}
+
+	return spread
 }
 
 // DefaultWeekdays returns default weekday labels.
