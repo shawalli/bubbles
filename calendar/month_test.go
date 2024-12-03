@@ -2,6 +2,8 @@ package calendar
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -551,6 +553,35 @@ func TestMonthModel_View(t *testing.T) {
 			got := ansi.Strip(c)
 
 			// Assertions
+			golden.RequireEqual(t, []byte(got))
+		})
+	}
+}
+
+func TestMonthModel_View_Comprehensive(t *testing.T) {
+	tests := []int{
+		2022,
+		2023,
+		2024,
+		2025,
+	}
+
+	for _, year := range tests {
+		t.Run(strconv.Itoa(year), func(t *testing.T) {
+			// Setup
+			var gots []string
+			for i := time.January; i <= time.December; i += 1 {
+
+				tm := NewMonth(year, i)
+				_ = tm.Init()
+
+				// Test
+				c := tm.View()
+				gots = append(gots, ansi.Strip(c))
+			}
+
+			// Assertions
+			got := strings.Join(gots, "\n")
 			golden.RequireEqual(t, []byte(got))
 		})
 	}
