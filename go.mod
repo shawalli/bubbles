@@ -6,7 +6,7 @@ require (
 	github.com/charmbracelet/bubbles v0.20.0
 	github.com/charmbracelet/bubbletea v1.2.4
 	github.com/charmbracelet/lipgloss v1.0.0
-	github.com/charmbracelet/x/ansi v0.5.2
+	github.com/charmbracelet/x/ansi v0.6.0
 	github.com/charmbracelet/x/exp/golden v0.0.0-20240906161213-162f3037fef5
 	github.com/charmbracelet/x/term v0.2.1
 	github.com/stretchr/testify v1.10.0
